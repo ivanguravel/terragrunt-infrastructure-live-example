@@ -7,9 +7,8 @@
 # We override the terraform block source attribute here just for the QA environment to show how you would deploy a
 # different version of the module in a specific environment.
 terraform {
-  source = "${include.envcommon.locals.base_source_url}?ref=v0.7.0"
+  source = "${include.envcommon.locals.base_source_url}"
 }
-
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Include configurations that are common used across multiple environments.
@@ -28,7 +27,16 @@ include "envcommon" {
   expose = true
 }
 
+dependency "mysql" {
+  config_path = "../mysql"
+}
 
 # ---------------------------------------------------------------------------------------------------------------------
 # We don't need to override any of the common parameters for this environment, so we don't specify any inputs.
 # ---------------------------------------------------------------------------------------------------------------------
+inputs = {
+  db_url = dependency.mysql.outputs.db_default_instance_endpoint
+  db_password = dependency.mysql.outputs.db_default_instance_password
+  db_port = dependency.mysql.outputs.db_default_instance_port
+  db_user = dependency.mysql.outputs.db_default_instance_username
+}
